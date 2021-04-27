@@ -16,6 +16,15 @@ pre_model = InceptionResNetV2(
 
 # %% [markdown]
 # # Visualizing first layer filters
+# Normalize the weights of the filters used in the first convolution layer,
+# then plot all 3 channels in color.
+#
+# The filters learned in the first layer are small and simple feature detectors.
+# Correlations between these simple features are learned in subsequent
+# layers of the network. Subsequent representations are composed of simpler features.
+#
+# It appears that the filters in the first layer consist of horizontal and vertical
+# edge detectors, as well as blob detectors. The filters appear to be sensitive to color.
 
 
 # %%
@@ -26,9 +35,6 @@ for layer in pre_model.layers:
 
     filters = layer.get_weights()[0]
     break
-
-
-# %%
 
 # Normalize the values
 fmin, fmax = filters.min(), filters.max()
