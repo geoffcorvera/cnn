@@ -9,7 +9,6 @@ from keras import layers
 from keras import preprocessing
 import tensorflow as tf
 
-from math import floor
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.applications import InceptionResNetV2
@@ -18,21 +17,20 @@ pre_model = InceptionResNetV2(
     weights='imagenet', include_top=False, input_shape=(150, 150, 3))
 # pre_model.summary()
 
-
 # %% [markdown]
-# # Visualizing first layer filters
-# Normalize the weights of the filters used in the first convolution layer,
-# then plot all 3 channels in color.
+#  # Visualizing first layer filters
+#  Normalize the weights of the filters used in the first convolution layer,
+#  then plot all 3 channels in color.
 #
-# The filters learned in the first layer are small and simple feature detectors.
-# Correlations between these simple features are learned in subsequent
-# layers of the network. Subsequent representations are composed of simpler features.
+#  The filters learned in the first layer are small and simple feature detectors.
+#  Correlations between these simple features are learned in subsequent
+#  layers of the network. Subsequent representations are composed of simpler features.
 #
-# It appears that the filters in the first layer consist of horizontal and vertical
-# edge detectors, as well as blob detectors. The filters appear to be sensitive to color.
+#  It appears that the filters in the first layer consist of horizontal and vertical
+#  edge detectors, as well as blob detectors. The filters appear to be sensitive to color.
+#  Get weights for first convolutional layer
 
-
-# Get weights for first convolutional layer
+# %%
 for layer in pre_model.layers:
     if 'conv' not in layer.name:
         continue
@@ -49,11 +47,10 @@ nf = filters.shape[3]
 plt_w = 8
 fig, axs = plt.subplots(int(nf/plt_w), plt_w)
 
-for i in range(nf):
+for i, ax in enumerate(fig.axes):
     f = filters[:, :, :, i]
-    r, c = floor(i / plt_w), i % plt_w
-    axs[r, c].imshow(f)
-    axs[r, c].axis('off')
+    ax.imshow(f)
+    ax.set_axis_off()
 
 fig.suptitle('Convolution Layer 1 Filters')
 plt.show()
