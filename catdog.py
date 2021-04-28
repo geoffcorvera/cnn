@@ -93,7 +93,28 @@ train_ds = train_ds.map(preprocess)
 # use buffered prefetch to yield data from disk without I/O blocking
 train_ds = train_ds.prefetch(buffer_size=32)
 
-print(dataset.element_spec)
 
-# Normalize pixel intensities to be in 0...1
-dataset = dataset.map(lambda x, y: x/255)
+# %%
+model = models.Sequential()
+model.add(pre_model)  # inception resnet v2
+model.add(layers.Flatten())  # flattens output of pre_model
+model.add(layers.Dense(256, activation='relu'))  # adds a dense layer
+# final output layer w/ single neuron, output in range [0,1]
+model.add(layers.Dense(1, activation='sigmoid'))
+
+model.summary()
+pre_model.trainable = False  # freeze pre-trained model weights
+
+
+# %%
+model.compile(loss='binary_crossentropy')
+evaluation = model.evaluate(test_ds, verbose=1)
+print(f'Loss: {evaluation[0]}\tAccuracy: {evaluation[1]}')
+
+# %%
+predictions = model.predict(test_ds)
+
+
+# history = model.fit(train_ds, validation_split=0.3, epochs=10)
+
+# %%
