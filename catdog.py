@@ -4,14 +4,17 @@
 #  excludes the final classification layer for ImageNet - which we will replace.
 
 # %%
-from keras import models
-from keras import layers
-from keras import preprocessing
-import tensorflow as tf
-
-import numpy as np
-import matplotlib.pyplot as plt
 from tensorflow.keras.applications import InceptionResNetV2
+import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+from keras import preprocessing
+from keras import layers
+from keras import models
+import pandas as pd
+import seaborn as sn
+sn.set_theme()
+
 
 pre_model = InceptionResNetV2(
     weights='imagenet', include_top=False, input_shape=(150, 150, 3))
@@ -107,14 +110,36 @@ pre_model.trainable = False  # freeze pre-trained model weights
 
 
 # %%
+# Evaluate model against test & get predictions
 model.compile(loss='binary_crossentropy')
 evaluation = model.evaluate(test_ds, verbose=1)
 print(f'Loss: {evaluation[0]}\tAccuracy: {evaluation[1]}')
 
-# %%
 predictions = model.predict(test_ds)
 
+# %%
 
-# history = model.fit(train_ds, validation_split=0.3, epochs=10)
+# Display predictions in confusion matrix
+
+
+def binaryConfusionMatrix(X, Y):
+    nclasses = 2
+    cm = np.zeros((nclasses, nclasses))
+    dat = np.concatenate((X, Y), axis=1)
+    for res in dat:
+        cm[int(res[0]), int(res[1])] += 1
+    return cm
+
+
+labels = np.concatenate([y for _, y in test_ds], axis=0).reshape(-1, 1)
+assert predictions.shape == labels.shape
+cm = binaryConfusionMatrix(predictions, labels)
+
+df_cm = pd.DataFrame(cm, range(2), range(2))
+sn.set(font_scale=1.4)
+sn.heatmap(df_cm, annot=True)
+plt.show()
+
 
 # %%
+# history = model.fit(train_ds, validation_split=0.3, epochs=10)
