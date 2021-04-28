@@ -8,6 +8,7 @@ from math import floor
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.applications import InceptionResNetV2
+import keras
 
 pre_model = InceptionResNetV2(
     weights='imagenet', include_top=False, input_shape=(150, 150, 3))
@@ -27,7 +28,6 @@ pre_model = InceptionResNetV2(
 # edge detectors, as well as blob detectors. The filters appear to be sensitive to color.
 
 
-# %%
 # Get weights for first convolutional layer
 for layer in pre_model.layers:
     if 'conv' not in layer.name:
@@ -54,4 +54,21 @@ for i in range(nf):
 fig.suptitle('Convolution Layer 1 Filters')
 plt.show()
 
-# %%
+# %% [markdown]
+# # Load & Pre-Process Images
+# Some pre-processing options:
+# - Gaussian blurring (to smooth out noise)
+# - Histogram leveling (does this work for 3-channel rgb?)
+# - Normalizing image pixel intensities (divide all pixels by max value 255)
+#
+# keras.preprocessing.image_dataset_from_directory() is RBG by default, and
+# resizes the images to (150, 150).
+# TODO: Should label_mode='binary'? (would need binary_crossentropy loss)
+
+dataset = keras.preprocessing.image_dataset_from_directory(
+    'dataset/training_set', batch_size=64, image_size=(150, 150))
+
+print(dataset.element_spec)
+
+# Normalize pixel intensities to be in 0...1
+dataset = dataset.map(lambda x, y: x/255)
