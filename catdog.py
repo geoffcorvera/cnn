@@ -90,6 +90,8 @@ def preprocess(images, labels):
 
 
 train_ds = train_ds.map(preprocess)
+# use buffered prefetch to yield data from disk without I/O blocking
+train_ds = train_ds.prefetch(buffer_size=32)
 
 print(dataset.element_spec)
 
