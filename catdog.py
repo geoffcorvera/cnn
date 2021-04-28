@@ -4,11 +4,15 @@
 # excludes the final classification layer for ImageNet - which we will replace.
 
 # %%
+from keras import models
+from keras import layers
+from keras import preprocessing
+import tensorflow as tf
+
 from math import floor
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.applications import InceptionResNetV2
-import keras
 
 pre_model = InceptionResNetV2(
     weights='imagenet', include_top=False, input_shape=(150, 150, 3))
@@ -65,8 +69,18 @@ plt.show()
 # resizes the images to (150, 150).
 # TODO: Should label_mode='binary'? (would need binary_crossentropy loss)
 
-dataset = keras.preprocessing.image_dataset_from_directory(
-    'dataset/training_set', batch_size=64, image_size=(150, 150))
+dataset = preprocessing.image_dataset_from_directory(
+    'dataset/training_set', image_size=(150, 150))
+
+# Rescale/normalize image intensities by max value
+
+
+def preprocess(images, labels):
+    images = tf.cast(images/255., tf.float32)
+    return images, labels
+
+
+dataset = dataset.map(preprocess)
 
 print(dataset.element_spec)
 
